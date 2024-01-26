@@ -1,0 +1,28 @@
+[package]
+name = "bevy_mod_async"
+version = "0.1.0"
+authors = ["Josh Hyatt <joshua.n.hyatt@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Ergonomic async tasks plugin for the Bevy game engine"
+repository = "https://github.com/jnhyatt/bevy_mod_async"
+keywords = ["gamedev", "tasks", "async", "bevy"]
+
+
+[dependencies]
+bevy_app = "0.12"
+bevy_asset = "0.12"
+bevy_ecs = "0.12"
+bevy_tasks = "0.12"
+futures = "0.3"
+tokio = { version = "1.35.1", features = ["sync"] }
+tokio-stream = { version = "0.1.14", features = ["sync"] }
+
+[dev-dependencies]
+bevy = "0.12.1"
+
+[[example]]
+name = "hello_world"
+
+[[example]]
+name = "async_asset"
