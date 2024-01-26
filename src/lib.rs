@@ -21,8 +21,8 @@ pub mod event_stream;
 
 pub mod prelude {
     pub use crate::{
-        async_asset::AsyncAssetTaskExt, common_uses::CommonUsesTaskExt,
-        event_stream::EventStreamTaskExt, AsyncTasksPlugin, SpawnCommandExt,
+        common_uses::CommonUsesTaskExt, event_stream::EventStreamTaskExt, AsyncTasksPlugin,
+        SpawnCommandExt,
     };
 }
 

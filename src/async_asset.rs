@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    fmt::Debug,
     pin::Pin,
     task::{Context, Poll},
 };
@@ -121,3 +122,8 @@ impl Stream for LoadStateStream {
         }
     }
 }
+
+/// This is used to report a generic asset load error until Bevy 0.13 gives me a nicer API
+/// to report exactly what went wrong.
+#[derive(Debug)]
+pub struct AssetLoadError;

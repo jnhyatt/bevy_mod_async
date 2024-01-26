@@ -1,9 +1,5 @@
-use std::future;
-
 use bevy::prelude::*;
-use bevy_asset::RecursiveDependencyLoadState;
 use bevy_mod_async::prelude::*;
-use futures::StreamExt;
 
 fn main() {
     App::new()
@@ -40,12 +36,10 @@ fn setup(mut commands: Commands) {
             )
             .await;
         // Load a scene
-        let scene = cx.load_asset::<Scene>("FlightHelmet.gltf#Scene0").await;
-        // Wait until the next load state is a `Loaded`
-        cx.get_load_state(scene.clone())
-            .filter(|&x| future::ready(x == RecursiveDependencyLoadState::Loaded))
-            .next()
-            .await;
+        let scene = cx
+            .load_asset::<Scene>("FlightHelmet.gltf#Scene0")
+            .await
+            .unwrap();
         // Now that the scene is loaded, despawn the loading screen and spawn the scene in
         cx.despawn(loading_screen).detach();
         cx.spawn(SceneBundle { scene, ..default() }).detach();

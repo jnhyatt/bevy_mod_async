@@ -28,14 +28,9 @@ Several convenience methods are provided as extensions on top of this API:
 ```rs
 let e = cx.spawn(()).await;
 cx.despawn(e).await;
-let a = cx.load_asset::<Mesh>("model.glb#Mesh0").await;
-// `get_load_state` provides a `Stream` API over an asset's load state
-let a_state = cx.get_load_state(a);
-while let Some(state) = a_state.next().await {
-    println!("Asset state: {state:?}");
-}
+let a = cx.load_asset::<Mesh>("model.glb#Mesh0").await.unwrap();
 ```
-All of these APIs return `WithWorld`, a `Future` impl that, when awaited, returns the result of executing the command on the `World`. This means that after `.await`ing the future, any modifications to the world will have taken effect. Due to the fact that `WithWorld` futures are (by default) only advanced once per frame, it also means that each `.await` will typically delay execution by one frame. If this is undesirable, the task can be detached as well:
+Many of these APIs return `WithWorld`, a `Future` that, when awaited, returns the result of executing the command on the `World`. This means that after `.await`ing the future, any modifications to the world will have taken effect. Due to the fact that `WithWorld` futures are (by default) only advanced once per frame, it also means that each `.await` will typically delay execution by one frame. If this is undesirable, the task can be detached as well:
 ```rs
 cx.spawn(()).detach();
 ```
@@ -82,7 +77,7 @@ Demonstrates loading assets asynchronously. Spawns a loading screen, then despaw
 
 | bevy | bevy_mod_async |
 | ---- | -------------- |
-| 0.12 | 0.1            |
+| 0.12 | 0.1-0.2        |
 
 ## Contribution
 

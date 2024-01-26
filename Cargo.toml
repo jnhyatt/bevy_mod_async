@@ -1,13 +1,12 @@
 [package]
 name = "bevy_mod_async"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Josh Hyatt <joshua.n.hyatt@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "Ergonomic async tasks plugin for the Bevy game engine"
 repository = "https://github.com/jnhyatt/bevy_mod_async"
 keywords = ["gamedev", "tasks", "async", "bevy"]
-
 
 [dependencies]
 bevy_app = "0.12"
