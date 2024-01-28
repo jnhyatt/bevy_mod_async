@@ -36,10 +36,7 @@ fn setup(mut commands: Commands) {
             )
             .await;
         // Load a scene
-        let scene = cx
-            .load_asset::<Scene>("FlightHelmet.gltf#Scene0")
-            .await
-            .unwrap();
+        let scene = cx.load_asset("FlightHelmet.gltf#Scene0").await.unwrap();
         // Now that the scene is loaded, despawn the loading screen and spawn the scene in
         cx.despawn(loading_screen).detach();
         cx.spawn(SceneBundle { scene, ..default() }).detach();
