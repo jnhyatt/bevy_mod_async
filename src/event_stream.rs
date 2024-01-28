@@ -94,6 +94,8 @@ impl<E: Event + Clone + Unpin> Stream for EventStream<E> {
                 EventStreamState::WaitingForTask(fut) => {
                     if let Poll::Ready(data) = fut.poll_unpin(cx) {
                         self.state = EventStreamState::HasItems(data);
+                    } else {
+                        return Poll::Pending;
                     }
                 }
             }
