@@ -6,7 +6,7 @@ fn main() {
         .add_plugins((DefaultPlugins, AsyncTasksPlugin))
         .insert_resource(AmbientLight {
             color: Color::WHITE,
-            brightness: 1.0,
+            brightness: 1_000.0,
         })
         .add_systems(Startup, setup)
         .run();
