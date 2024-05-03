@@ -22,7 +22,7 @@ pub mod event_stream;
 pub mod prelude {
     pub use crate::{
         common_uses::CommonUsesTaskExt, event_stream::EventStreamTaskExt, AsyncTasksPlugin,
-        SpawnCommandExt, TaskContext,
+        SpawnCommandExt, SpawnTaskExt, TaskContext,
     };
 }
 
