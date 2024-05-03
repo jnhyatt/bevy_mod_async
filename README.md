@@ -78,7 +78,7 @@ Demonstrates loading assets asynchronously. Spawns a loading screen, then despaw
 | bevy | bevy_mod_async |
 | ---- | -------------- |
 | 0.12 | 0.1-0.2        |
-| 0.13 | 0.3            |
+| 0.13 | 0.3-0.4        |
 
 ## Contribution
 
