@@ -82,11 +82,40 @@ pub fn run_async_jobs(world: &mut World) {
     }
 }
 
+pub trait SpawnTaskExt {
+    /// Spawn a task onto Bevy's async executor. The [`AsyncComputeTaskPool`] must have been
+    /// initialized before this method is called (this is done automatically by [`TaskPoolPlugin`]).
+    ///
+    /// ```
+    /// world.spawn_task(|cx| {
+    ///     // Will spawn an entity once we have exclusive world access and
+    ///     // return the id
+    ///     let _spawned = cx.with_world(|world| world.spawn(()).id()).await;
+    /// });
+    /// ```
+    ///
+    /// [`TaskPoolPlugin`]: bevy::core::TaskPoolPlugin
+    fn spawn_task<T, F>(&self, task: T)
+    where
+        T: FnOnce(TaskContext) -> F + Send + 'static,
+        F: Future<Output = ()> + Send + Sync + 'static;
+}
+
+impl SpawnTaskExt for World {
+    fn spawn_task<T, F>(&self, task: T)
+    where
+        T: FnOnce(TaskContext) -> F + Send + 'static,
+        F: Future<Output = ()> + Send + Sync + 'static,
+    {
+        let context = self.resource::<AsyncWork>().create_task_context();
+        AsyncComputeTaskPool::get().spawn(task(context)).detach();
+    }
+}
+
 pub trait SpawnCommandExt {
-    /// Spawn a task onto Bevy's async executor. The [`AsyncComputeTaskPool`]
-    /// must be initialized before this command is applied (this typically
-    /// happens automatically with
-    /// [`DefaultPlugins`] registered).
+    /// Spawn a task onto Bevy's async executor. The [`AsyncComputeTaskPool`] must be have been
+    /// initialized before this command is applied (this is done automatically by
+    /// [`TaskPoolPlugin`]).
     ///
     /// ```
     /// commands.spawn_task(|cx| {
@@ -96,7 +125,7 @@ pub trait SpawnCommandExt {
     /// });
     /// ```
     ///
-    /// [`DefaultPlugins`]: bevy::prelude::DefaultPlugins
+    /// [`TaskPoolPlugin`]: bevy::core::TaskPoolPlugin
     fn spawn_task<T, F>(&mut self, task: T)
     where
         T: FnOnce(TaskContext) -> F + Send + 'static,
@@ -110,8 +139,7 @@ impl SpawnCommandExt for Commands<'_, '_> {
         F: Future<Output = ()> + Send + Sync + 'static,
     {
         self.add(move |world: &mut World| {
-            let context = world.resource::<AsyncWork>().create_task_context();
-            AsyncComputeTaskPool::get().spawn(task(context)).detach();
+            world.spawn_task(task);
         });
     }
 }
