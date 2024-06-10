@@ -98,14 +98,14 @@ pub trait SpawnTaskExt {
     fn spawn_task<T, F>(&self, task: T)
     where
         T: FnOnce(TaskContext) -> F + Send + 'static,
-        F: Future<Output = ()> + Send + Sync + 'static;
+        F: Future<Output = ()> + Send + 'static;
 }
 
 impl SpawnTaskExt for World {
     fn spawn_task<T, F>(&self, task: T)
     where
         T: FnOnce(TaskContext) -> F + Send + 'static,
-        F: Future<Output = ()> + Send + Sync + 'static,
+        F: Future<Output = ()> + Send + 'static,
     {
         let context = self.resource::<AsyncWork>().create_task_context();
         AsyncComputeTaskPool::get().spawn(task(context)).detach();
@@ -129,14 +129,14 @@ pub trait SpawnCommandExt {
     fn spawn_task<T, F>(&mut self, task: T)
     where
         T: FnOnce(TaskContext) -> F + Send + 'static,
-        F: Future<Output = ()> + Send + Sync + 'static;
+        F: Future<Output = ()> + Send + 'static;
 }
 
 impl SpawnCommandExt for Commands<'_, '_> {
     fn spawn_task<T, F>(&mut self, task: T)
     where
         T: FnOnce(TaskContext) -> F + Send + 'static,
-        F: Future<Output = ()> + Send + Sync + 'static,
+        F: Future<Output = ()> + Send + 'static,
     {
         self.add(move |world: &mut World| {
             world.spawn_task(task);
