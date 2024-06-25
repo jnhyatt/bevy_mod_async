@@ -14,12 +14,16 @@ use bevy_ecs::{
 };
 use bevy_tasks::AsyncComputeTaskPool;
 use futures::FutureExt;
+#[cfg(feature = "time")]
+use time::time_plugin;
 use tokio::sync::{mpsc, oneshot};
 
 #[cfg(feature = "asset")]
 pub mod async_asset;
 pub mod common_uses;
 pub mod event_stream;
+#[cfg(feature = "time")]
+pub mod time;
 
 pub mod prelude {
     pub use crate::{
@@ -42,6 +46,8 @@ impl Plugin for AsyncTasksPlugin {
             app.init_resource::<AssetSubscriptions>();
             app.add_systems(Update, notify_asset_events);
         }
+        #[cfg(feature = "time")]
+        app.add_plugins(time_plugin);
     }
 }
 
