@@ -5,6 +5,7 @@ use std::{
     task::{Context, Poll},
 };
 
+#[cfg(feature = "asset")]
 use async_asset::{notify_asset_events, AssetSubscriptions};
 use bevy_app::{App, Plugin, Update};
 use bevy_ecs::{
@@ -15,6 +16,7 @@ use bevy_tasks::AsyncComputeTaskPool;
 use futures::FutureExt;
 use tokio::sync::{mpsc, oneshot};
 
+#[cfg(feature = "asset")]
 pub mod async_asset;
 pub mod common_uses;
 pub mod event_stream;
@@ -34,8 +36,12 @@ pub struct AsyncTasksPlugin;
 impl Plugin for AsyncTasksPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<AsyncWork>();
-        app.init_resource::<AssetSubscriptions>();
-        app.add_systems(Update, (run_async_jobs, notify_asset_events));
+        app.add_systems(Update, run_async_jobs);
+        #[cfg(feature = "asset")]
+        {
+            app.init_resource::<AssetSubscriptions>();
+            app.add_systems(Update, notify_asset_events);
+        }
     }
 }
 

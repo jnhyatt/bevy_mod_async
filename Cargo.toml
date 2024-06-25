@@ -10,12 +10,16 @@ keywords = ["gamedev", "tasks", "async", "bevy"]
 
 [dependencies]
 bevy_app = "0.13"
-bevy_asset = "0.13"
+bevy_asset = { version = "0.13", optional = true }
 bevy_ecs = "0.13"
 bevy_tasks = "0.13"
 futures = "0.3"
 tokio = { version = "1.36.0", features = ["sync"] }
 tokio-stream = { version = "0.1.15", features = ["sync"] }
+
+[features]
+default = ["asset"]
+asset = ["bevy_asset"]
 
 [dev-dependencies]
 bevy = "0.13"
@@ -25,3 +29,4 @@ name = "hello_world"
 
 [[example]]
 name = "async_asset"
+required-features = ["asset"]
