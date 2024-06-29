@@ -73,6 +73,9 @@ Demonstrates some of `TaskContext`'s async APIs, and tries to simply explain how
 ### [`async_asset`](examples/async_asset.rs)
 Demonstrates loading assets asynchronously. Spawns a loading screen, then despawns it when the scene is ready to be loaded.
 
+### [`timers`](examples/timers.rs)
+Demonstrates the `sleep` APIs, as well as spawning async tasks with Bevy running headless.
+
 ## Bevy Version
 
 | bevy | bevy_mod_async |

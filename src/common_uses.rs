@@ -1,17 +1,20 @@
-use std::future::Future;
-
-use bevy_asset::{Asset, AssetPath, AssetServer, Handle, RecursiveDependencyLoadState};
 use bevy_ecs::{bundle::Bundle, entity::Entity};
-use futures::StreamExt;
 
-use crate::{
-    async_asset::{AssetLoadError, AsyncAssetTaskExt},
-    TaskContext, WithWorld,
+use crate::{TaskContext, WithWorld};
+
+#[cfg(feature = "asset")]
+use {
+    crate::async_asset::{AssetLoadError, AsyncAssetTaskExt},
+    bevy_asset::{Asset, AssetPath, AssetServer, Handle, RecursiveDependencyLoadState},
+    futures::StreamExt,
+    std::future::Future,
 };
 
 pub trait CommonUsesTaskExt {
     fn spawn(&self, bundle: impl Bundle) -> WithWorld<Entity>;
     fn despawn(&self, e: Entity) -> WithWorld<bool>;
+
+    #[cfg(feature = "asset")]
     fn load_asset<'a, A: Asset>(
         &self,
         path: impl Into<AssetPath<'a>> + Send + 'static,
@@ -27,6 +30,7 @@ impl CommonUsesTaskExt for TaskContext {
         self.with_world(move |world| world.despawn(e))
     }
 
+    #[cfg(feature = "asset")]
     fn load_asset<'a, A: Asset>(
         &self,
         path: impl Into<AssetPath<'a>> + Send + 'static,
