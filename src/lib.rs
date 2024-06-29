@@ -26,6 +26,8 @@ pub mod event_stream;
 pub mod time;
 
 pub mod prelude {
+    #[cfg(feature = "time")]
+    pub use crate::time::TimingTaskExt;
     pub use crate::{
         common_uses::CommonUsesTaskExt, event_stream::EventStreamTaskExt, AsyncTasksPlugin,
         SpawnCommandExt, SpawnTaskExt, TaskContext,
