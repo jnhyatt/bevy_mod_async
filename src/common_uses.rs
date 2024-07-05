@@ -39,7 +39,7 @@ impl CommonUsesTaskExt for TaskContext {
             let handle = self
                 .with_world(|world| world.resource::<AssetServer>().load(path))
                 .await;
-            let mut states = self.get_load_state(handle.clone());
+            let mut states = self.get_load_state(handle.id());
             while let Some(x) = states.next().await {
                 match x {
                     RecursiveDependencyLoadState::NotLoaded => return Err(AssetLoadError),
