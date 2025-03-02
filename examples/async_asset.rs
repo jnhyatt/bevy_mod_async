@@ -13,32 +13,40 @@ fn main() {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(2.0, 1.0, 3.0).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_xyz(2.0, 1.0, 3.0).looking_at(Vec3::ZERO, Vec3::Y),
+    ));
+
     commands.spawn_task(|cx| async move {
         // Spawn in a nice loading screen
-        let loading_screen = cx
-            .spawn(
-                TextBundle::from_section(
-                    "Loading...",
-                    TextStyle {
-                        font_size: 36.0,
+        let (container, text) = cx
+            .with_world(|world| {
+                let container = world
+                    .spawn(Node {
+                        align_self: AlignSelf::Center,
+                        justify_self: JustifySelf::Center,
                         ..default()
-                    },
-                )
-                .with_style(Style {
-                    align_self: AlignSelf::Center,
-                    justify_self: JustifySelf::Center,
-                    ..default()
-                }),
-            )
+                    })
+                    .id();
+                let text = world
+                    .spawn((
+                        Text::new("Loading..."),
+                        TextFont {
+                            font_size: 36.0,
+                            ..default()
+                        },
+                    ))
+                    .set_parent(container)
+                    .id();
+                (container, text)
+            })
             .await;
-        // Load a scene
         let scene = cx.load_asset("FlightHelmet.gltf#Scene0").await.unwrap();
         // Now that the scene is loaded, despawn the loading screen and spawn the scene in
-        cx.despawn(loading_screen).detach();
-        cx.spawn(SceneBundle { scene, ..default() }).detach();
+        // nb we need to despawn each level of the hierarchy, as despawn_recursive isn't available on [World]
+        cx.despawn(text).detach();
+        cx.despawn(container).detach();
+        cx.spawn(SceneRoot(scene)).detach();
     });
 }

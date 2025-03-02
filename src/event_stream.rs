@@ -4,7 +4,7 @@ use std::{
     task::{Context, Poll},
 };
 
-use bevy_ecs::event::{Event, Events, ManualEventReader};
+use bevy_ecs::event::{Event, EventCursor, Events};
 use futures::{FutureExt, Stream};
 
 use crate::{TaskContext, WithWorld};
@@ -21,7 +21,7 @@ impl EventStreamTaskExt for TaskContext {
 
 struct EventStreamData<E: Event> {
     items: VecDeque<E>,
-    reader: ManualEventReader<E>,
+    reader: EventCursor<E>,
 }
 
 impl<E: Event> Default for EventStreamData<E> {
