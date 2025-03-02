@@ -57,8 +57,8 @@ pub fn advance_timeout_after(
         if let Some(new_timeout) = timeout.0.checked_sub(time.delta()) {
             timeout.0 = new_timeout;
         } else {
-            commands.add(move |world: &mut World| {
-                let Some(mut e) = world.get_entity_mut(e) else {
+            commands.queue(move |world: &mut World| {
+                let Ok(mut e) = world.get_entity_mut(e) else {
                     return;
                 };
                 if let Some(timeout) = e.take::<TimeoutAfter>() {
@@ -77,8 +77,8 @@ pub fn advance_timeout_at(
 ) {
     for (e, timeout) in &timeouts {
         if time.elapsed() >= timeout.0 {
-            commands.add(move |world: &mut World| {
-                let Some(mut e) = world.get_entity_mut(e) else {
+            commands.queue(move |world: &mut World| {
+                let Ok(mut e) = world.get_entity_mut(e) else {
                     return;
                 };
                 if let Some(timeout) = e.take::<TimeoutAt>() {

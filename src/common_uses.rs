@@ -4,8 +4,10 @@ use crate::{TaskContext, WithWorld};
 
 #[cfg(feature = "asset")]
 use {
-    crate::async_asset::{AssetLoadError, AsyncAssetTaskExt},
-    bevy_asset::{Asset, AssetPath, AssetServer, Handle, RecursiveDependencyLoadState},
+    crate::async_asset::AsyncAssetTaskExt,
+    bevy_asset::{
+        Asset, AssetLoadError, AssetPath, AssetServer, Handle, RecursiveDependencyLoadState,
+    },
     futures::StreamExt,
     std::future::Future,
 };
@@ -42,13 +44,17 @@ impl CommonUsesTaskExt for TaskContext {
             let mut states = self.get_load_state(handle.id());
             while let Some(x) = states.next().await {
                 match x {
-                    RecursiveDependencyLoadState::NotLoaded => return Err(AssetLoadError),
+                    RecursiveDependencyLoadState::NotLoaded => {
+                        return Err(AssetLoadError::AssetMetaReadError)
+                    } //TODO work out correct error to pass
                     RecursiveDependencyLoadState::Loading => {}
                     RecursiveDependencyLoadState::Loaded => return Ok(handle),
-                    RecursiveDependencyLoadState::Failed => return Err(AssetLoadError),
+                    RecursiveDependencyLoadState::Failed(error) => {
+                        return Err(error.as_ref().clone())
+                    }
                 }
             }
-            Err(AssetLoadError)
+            Err(AssetLoadError::AssetMetaReadError)
         }
     }
 }

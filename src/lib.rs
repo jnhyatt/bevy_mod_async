@@ -152,7 +152,7 @@ impl SpawnCommandExt for Commands<'_, '_> {
         T: FnOnce(TaskContext) -> F + Send + 'static,
         F: Future<Output = ()> + Send + 'static,
     {
-        self.add(move |world: &mut World| {
+        self.queue(move |world: &mut World| {
             world.spawn_task(task);
         });
     }

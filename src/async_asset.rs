@@ -1,11 +1,10 @@
 use std::{
     collections::HashMap,
-    fmt::Debug,
     pin::Pin,
     task::{Context, Poll},
 };
 
-use bevy_asset::{AssetServer, RecursiveDependencyLoadState, UntypedAssetId};
+use bevy_asset::{AssetLoadError, AssetServer, RecursiveDependencyLoadState, UntypedAssetId};
 use bevy_ecs::system::{Res, ResMut, Resource};
 use futures::{FutureExt, Stream, StreamExt};
 use tokio::sync::watch;
@@ -29,6 +28,125 @@ impl AsyncAssetTaskExt for TaskContext {
     }
 }
 
+/// Because we can't implement [PartialEq] on a foreign type, create our own trait that mirrors the interface
+trait PartialEquality {
+    fn eq(&self, other: &Self) -> bool;
+}
+
+impl PartialEquality for AssetLoadError {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (
+                Self::RequestedHandleTypeMismatch {
+                    path: l_path,
+                    requested: l_requested,
+                    actual_asset_name: l_actual_asset_name,
+                    loader_name: l_loader_name,
+                },
+                Self::RequestedHandleTypeMismatch {
+                    path: r_path,
+                    requested: r_requested,
+                    actual_asset_name: r_actual_asset_name,
+                    loader_name: r_loader_name,
+                },
+            ) => {
+                l_path == r_path
+                    && l_requested == r_requested
+                    && l_actual_asset_name == r_actual_asset_name
+                    && l_loader_name == r_loader_name
+            }
+            (
+                Self::MissingAssetLoader {
+                    loader_name: l_loader_name,
+                    asset_type_id: l_asset_type_id,
+                    extension: l_extension,
+                    asset_path: l_asset_path,
+                },
+                Self::MissingAssetLoader {
+                    loader_name: r_loader_name,
+                    asset_type_id: r_asset_type_id,
+                    extension: r_extension,
+                    asset_path: r_asset_path,
+                },
+            ) => {
+                l_loader_name == r_loader_name
+                    && l_asset_type_id == r_asset_type_id
+                    && l_extension == r_extension
+                    && l_asset_path == r_asset_path
+            }
+            (
+                Self::MissingAssetLoaderForExtension(l0),
+                Self::MissingAssetLoaderForExtension(r0),
+            ) => l0 == r0,
+            (Self::MissingAssetLoaderForTypeName(l0), Self::MissingAssetLoaderForTypeName(r0)) => {
+                l0 == r0
+            }
+            (
+                Self::MissingAssetLoaderForTypeIdError(l0),
+                Self::MissingAssetLoaderForTypeIdError(r0),
+            ) => l0 == r0,
+            (Self::AssetReaderError(l0), Self::AssetReaderError(r0)) => l0 == r0,
+            (Self::MissingAssetSourceError(l0), Self::MissingAssetSourceError(r0)) => l0 == r0,
+            (
+                Self::MissingProcessedAssetReaderError(l0),
+                Self::MissingProcessedAssetReaderError(r0),
+            ) => l0 == r0,
+            (
+                Self::DeserializeMeta {
+                    path: l_path,
+                    error: l_error,
+                },
+                Self::DeserializeMeta {
+                    path: r_path,
+                    error: r_error,
+                },
+            ) => l_path == r_path && l_error == r_error,
+            (
+                Self::CannotLoadProcessedAsset { path: l_path },
+                Self::CannotLoadProcessedAsset { path: r_path },
+            ) => l_path == r_path,
+            (
+                Self::CannotLoadIgnoredAsset { path: l_path },
+                Self::CannotLoadIgnoredAsset { path: r_path },
+            ) => l_path == r_path,
+            (
+                Self::AssetLoaderPanic {
+                    path: l_path,
+                    loader_name: l_loader_name,
+                },
+                Self::AssetLoaderPanic {
+                    path: r_path,
+                    loader_name: r_loader_name,
+                },
+            ) => l_path == r_path && l_loader_name == r_loader_name,
+            (Self::AssetLoaderError(l0), Self::AssetLoaderError(r0)) => l0.to_string() == r0.to_string(),
+            (Self::AddAsyncError(l0), Self::AddAsyncError(r0)) => l0.to_string() == r0.to_string(),
+            (
+                Self::MissingLabel {
+                    base_path: l_base_path,
+                    label: l_label,
+                    all_labels: l_all_labels,
+                },
+                Self::MissingLabel {
+                    base_path: r_base_path,
+                    label: r_label,
+                    all_labels: r_all_labels,
+                },
+            ) => l_base_path == r_base_path && l_label == r_label && l_all_labels == r_all_labels,
+            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
+        }
+    }
+}
+
+impl PartialEquality for RecursiveDependencyLoadState {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Failed(l0), Self::Failed(r0)) => l0.eq(r0),
+            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
+        }
+    }
+}
+
 /// Notifies interested parties of changes to asset load states. Iterates asset handles
 /// registered in [`AssetSubscriptions`] and checks their load state, emitting an update to
 /// all subscribers if the state has changed.
@@ -39,7 +157,7 @@ pub fn notify_asset_events(
     let mut to_unsubscribe = Vec::new();
     for (id, tx) in &subscriptions.handles {
         let current = assets.recursive_dependency_load_state(*id);
-        if current != *tx.borrow() {
+        if !current.eq(&tx.borrow()) {
             if tx.send(current).is_err() {
                 // Channel is closed, unsubscribe this asset
                 to_unsubscribe.push(*id);
@@ -122,8 +240,3 @@ impl Stream for LoadStateStream {
         }
     }
 }
-
-/// This is used to report a generic asset load error until Bevy 0.13 gives me a nicer API
-/// to report exactly what went wrong.
-#[derive(Debug)]
-pub struct AssetLoadError;
