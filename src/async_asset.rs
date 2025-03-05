@@ -119,7 +119,9 @@ impl PartialEquality for AssetLoadError {
                     loader_name: r_loader_name,
                 },
             ) => l_path == r_path && l_loader_name == r_loader_name,
-            (Self::AssetLoaderError(l0), Self::AssetLoaderError(r0)) => l0.to_string() == r0.to_string(),
+            (Self::AssetLoaderError(l0), Self::AssetLoaderError(r0)) => {
+                l0.to_string() == r0.to_string()
+            }
             (Self::AddAsyncError(l0), Self::AddAsyncError(r0)) => l0.to_string() == r0.to_string(),
             (
                 Self::MissingLabel {
