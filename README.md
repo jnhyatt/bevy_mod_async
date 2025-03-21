@@ -83,7 +83,7 @@ Demonstrates the `sleep` APIs, as well as spawning async tasks with Bevy running
 | 0.12 | 0.1-0.2        |
 | 0.13 | 0.3-0.6        |
 | 0.14 | 0.7            |
-| 0.15 | 0.8            |
+| 0.15 | 0.8-0.9        |
 
 ## Contribution
 
