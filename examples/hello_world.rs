@@ -26,10 +26,19 @@ fn setup(mut commands: Commands) {
             })
             .await;
 
-        // We can't use `cx.spawn` here because we need to use `set_parent`
+        // `bevy_mod_async`'s primary API is `with_world`. Every other method provided
+        // on `TaskContext` is built on top of it. Essentially, it moves the provided
+        // closure onto the main thread and executes it once exclusive world access is
+        // available, then provides you a `Future` that completes when the operation
+        // does and returns its result
+        // TODO We can't use `cx.spawn` here because we need to use `set_parent`
         // Improved constructors in bevy 0.16 sould make this more ergonomic
         let text_entity = cx
             .with_world(move |world| {
+                // You can do anything in here that you could with a `&mut World` -- this
+                // closure runs essentially as an exclusive system, so you can spawn
+                // entities, access their components, resources, events, etc. The result of
+                // the closure will be passed back to your async task
                 world
                     .spawn((
                         Text::new("Waiting for keyboard event"),
@@ -46,18 +55,10 @@ fn setup(mut commands: Commands) {
         // `event_stream` returns a `Stream` over any (clonable) event type
         let mut events = cx.event_stream::<KeyboardInput>();
         while let Some(ev) = events.next().await {
-            // `bevy_mod_async`'s primary API is `with_world`. Every other method provided
-            // on `TaskContext` is built on top of it. Essentially, it moves the provided
-            // closure onto the main thread and executes it once exclusive world access is
-            // available, then provides you a `Future` that completes when the operation
-            // does and returns its result
-            cx.with_world(move |world| {
-                // You can do anything in here that you could with a `&mut World` -- this
-                // closure runs essentially as an exclusive system, so you can spawn
-                // entities, access their components, resources, events, etc. The result of
-                // the closure will be passed back to your async task
-                let mut e = world.entity_mut(text_entity);
-                let mut text = e.get_mut::<Text>().unwrap();
+            // `cx.with_entity` is a helper that wraps `with_world` and gives you an
+            // `EntityWorldMut`to do whatever you want with:
+            cx.with_entity(text_entity, move |mut text_entity| {
+                let mut text = text_entity.get_mut::<Text>().unwrap();
                 text.0 = format!("Got keyboard event: {:?}", ev.key_code);
             })
             .detach();

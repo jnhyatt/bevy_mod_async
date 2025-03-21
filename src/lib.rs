@@ -20,6 +20,7 @@ use tokio::sync::{mpsc, oneshot};
 
 #[cfg(feature = "asset")]
 pub mod async_asset;
+pub mod async_entity;
 pub mod common_uses;
 pub mod event_stream;
 #[cfg(feature = "time")]
@@ -29,8 +30,9 @@ pub mod prelude {
     #[cfg(feature = "time")]
     pub use crate::time::TimingTaskExt;
     pub use crate::{
-        common_uses::CommonUsesTaskExt, event_stream::EventStreamTaskExt, AsyncTasksPlugin,
-        SpawnCommandExt, SpawnTaskExt, TaskContext,
+        async_entity::AsyncEntityTaskExt, common_uses::CommonUsesTaskExt,
+        event_stream::EventStreamTaskExt, AsyncTasksPlugin, SpawnCommandExt, SpawnTaskExt,
+        TaskContext,
     };
 }
 
