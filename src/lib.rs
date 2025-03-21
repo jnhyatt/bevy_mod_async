@@ -103,11 +103,19 @@ pub trait SpawnTaskExt {
     /// initialized before this method is called (this is done automatically by [`TaskPoolPlugin`]).
     ///
     /// ```
-    /// world.spawn_task(|cx| {
+    /// # use bevy::prelude::*;
+    /// # use bevy_mod_async::prelude::*;
+    /// # App::new()
+    /// #     .add_plugins((MinimalPlugins, AssetPlugin::default(), AsyncTasksPlugin))
+    /// #     .add_systems(Startup, |world: &mut World| {
+    /// world.spawn_task(|cx| async move {
     ///     // Will spawn an entity once we have exclusive world access and
     ///     // return the id
     ///     let _spawned = cx.with_world(|world| world.spawn(()).id()).await;
     /// });
+    /// # world.send_event(AppExit::Success);
+    /// #     })
+    /// #     .run();
     /// ```
     ///
     /// [`TaskPoolPlugin`]: bevy::core::TaskPoolPlugin
@@ -134,11 +142,19 @@ pub trait SpawnCommandExt {
     /// [`TaskPoolPlugin`]).
     ///
     /// ```
-    /// commands.spawn_task(|cx| {
+    /// # use bevy::prelude::*;
+    /// # use bevy_mod_async::prelude::*;
+    /// # App::new()
+    /// #     .add_plugins((MinimalPlugins, AssetPlugin::default(), AsyncTasksPlugin))
+    /// #     .add_systems(Startup, |mut commands: Commands| {
+    /// commands.spawn_task(|cx| async move {
     ///     // Will spawn an entity once we have exclusive world access and
     ///     // return the id
     ///     let _spawned = cx.with_world(|world| world.spawn(()).id()).await;
     /// });
+    /// #         commands.send_event(AppExit::Success);
+    /// #     })
+    /// #     .run();
     /// ```
     ///
     /// [`TaskPoolPlugin`]: bevy::core::TaskPoolPlugin
@@ -216,10 +232,21 @@ impl<R: Send + 'static> WithWorld<R> {
     /// dispatched within the same frame.
     ///
     /// ```
-    /// cx.with_world(|world| {
+    /// # use bevy_mod_async::prelude::*;
+    /// # use bevy::prelude::*;
+    /// # #[derive(Component)]
+    /// # struct MyComponent;
+    /// # App::new()
+    /// #     .add_plugins((MinimalPlugins, AssetPlugin::default(), AsyncTasksPlugin))
+    /// #     .add_systems(Startup, |world: &mut World| {
+    /// #         let e = world.spawn(()).id();
+    /// #         world.spawn_task(move |cx| async move {
+    /// cx.with_world(move |world| {
     ///     world.entity_mut(e).insert(MyComponent);
     /// })
     /// .detach();
+    /// #     });
+    /// # });
     /// ```
     pub fn detach(self) {}
 }

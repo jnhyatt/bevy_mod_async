@@ -48,10 +48,27 @@ impl<E: Event> Default for EventStreamState<E> {
 /// over all [`Event`]s from the start of the [`Events`] queue.
 ///
 /// ```
-/// let mut events = cx.event_stream::<KeyboardEvent>();
-/// while let Some(ev) = events.next().await {
-///     println!("Got a keyboard event: {ev:?}");
-/// }
+/// # use bevy::prelude::*;
+/// # use bevy_mod_async::prelude::*;
+/// # use futures::StreamExt;
+/// # #[derive(Event, Clone)]
+/// # struct MyEvent(u32);
+/// # App::new()
+/// #     .add_plugins((MinimalPlugins, AssetPlugin::default(), AsyncTasksPlugin))
+/// #     .add_event::<MyEvent>()
+/// #     .add_systems(Main, |world: &mut World| {
+/// world.spawn_task(|cx| async move {
+///     let mut events = cx.event_stream::<MyEvent>();
+///     assert!(matches!(events.next().await, Some(MyEvent(1))));
+///     assert!(matches!(events.next().await, Some(MyEvent(2))));
+///     assert!(matches!(events.next().await, Some(MyEvent(3))));
+/// });
+/// world.send_event(MyEvent(1));
+/// world.send_event(MyEvent(2));
+/// world.send_event(MyEvent(3));
+/// # world.send_event(AppExit::Success);
+/// #     })
+/// #     .run();
 /// ```
 pub struct EventStream<E>
 where
