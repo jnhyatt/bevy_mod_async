@@ -1,4 +1,4 @@
-use bevy_ecs::{bundle::Bundle, entity::Entity};
+use bevy_ecs::{bundle::Bundle, entity::Entity, event::Event};
 
 use crate::{TaskContext, WithWorld};
 
@@ -21,6 +21,8 @@ pub trait CommonUsesTaskExt {
         &self,
         path: impl Into<AssetPath<'a>> + Send + 'static,
     ) -> impl Future<Output = Result<Handle<A>, AssetLoadError>>;
+
+    fn send_event<E: Event>(&self, event: E) -> WithWorld<()>;
 }
 
 impl CommonUsesTaskExt for TaskContext {
@@ -56,5 +58,11 @@ impl CommonUsesTaskExt for TaskContext {
             }
             Err(AssetLoadError::AssetMetaReadError)
         }
+    }
+
+    fn send_event<E: Event>(&self, event: E) -> WithWorld<()> {
+        self.with_world(move |world| {
+            world.send_event(event);
+        })
     }
 }
