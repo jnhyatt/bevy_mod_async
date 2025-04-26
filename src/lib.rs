@@ -8,10 +8,7 @@ use std::{
 #[cfg(feature = "asset")]
 use async_asset::{notify_asset_events, AssetSubscriptions};
 use bevy_app::{App, Plugin, Update};
-use bevy_ecs::{
-    system::{Commands, Resource},
-    world::World,
-};
+use bevy_ecs::{resource::Resource, system::Commands, world::World};
 use bevy_tasks::AsyncComputeTaskPool;
 use futures::FutureExt;
 #[cfg(feature = "time")]
