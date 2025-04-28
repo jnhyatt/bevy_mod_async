@@ -31,25 +31,15 @@ fn setup(mut commands: Commands) {
         // closure onto the main thread and executes it once exclusive world access is
         // available, then provides you a `Future` that completes when the operation
         // does and returns its result
-        // TODO We can't use `cx.spawn` here because we need to use `set_parent`
-        // Improved constructors in bevy 0.16 sould make this more ergonomic
         let text_entity = cx
-            .with_world(move |world| {
-                // You can do anything in here that you could with a `&mut World` -- this
-                // closure runs essentially as an exclusive system, so you can spawn
-                // entities, access their components, resources, events, etc. The result of
-                // the closure will be passed back to your async task
-                world
-                    .spawn((
-                        Text::new("Waiting for keyboard event"),
-                        TextFont {
-                            font_size: 36.0,
-                            ..default()
-                        },
-                    ))
-                    .set_parent(container)
-                    .id()
-            })
+            .spawn((
+                Text::new("Waiting for keyboard event"),
+                TextFont {
+                    font_size: 36.0,
+                    ..default()
+                },
+                ChildOf(container),
+            ))
             .await;
 
         // `event_stream` returns a `Stream` over any (clonable) event type
