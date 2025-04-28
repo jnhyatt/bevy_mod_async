@@ -5,7 +5,10 @@ use std::{
 };
 
 use bevy_asset::{AssetLoadError, AssetServer, RecursiveDependencyLoadState, UntypedAssetId};
-use bevy_ecs::system::{Res, ResMut, Resource};
+use bevy_ecs::{
+    resource::Resource,
+    system::{Res, ResMut},
+};
 use futures::{FutureExt, Stream, StreamExt};
 use tokio::sync::watch;
 use tokio_stream::wrappers::WatchStream;

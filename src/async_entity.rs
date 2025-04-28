@@ -1,8 +1,8 @@
 use crate::{TaskContext, WithWorld};
 use bevy_ecs::{
-    bundle::Bundle,
+    bundle::{Bundle, BundleFromComponents},
     entity::Entity,
-    world::{error::EntityFetchError, EntityWorldMut},
+    world::{error::EntityMutableFetchError, EntityWorldMut},
 };
 
 #[derive(Clone)]
@@ -50,7 +50,7 @@ impl AsyncEntity {
     ///
     /// **Note:** If the entity does not have every component in the bundle, this method will not
     /// remove any of them.
-    pub fn take<T: Bundle>(&self) -> WithWorld<Option<T>> {
+    pub fn take<T: Bundle + BundleFromComponents>(&self) -> WithWorld<Option<T>> {
         let e = self.entity;
         self.task_context
             .with_world(move |world| world.entity_mut(e).take::<T>())
@@ -111,7 +111,11 @@ pub trait AsyncEntityTaskExt {
     /// #     })
     /// #     .run();
     /// ```
-    fn with_entity<R, F>(&self, entity: Entity, f: F) -> WithWorld<Result<R, EntityFetchError>>
+    fn with_entity<R, F>(
+        &self,
+        entity: Entity,
+        f: F,
+    ) -> WithWorld<Result<R, EntityMutableFetchError>>
     where
         R: Send + 'static,
         F: FnOnce(EntityWorldMut) -> R + Send + 'static;
@@ -125,7 +129,11 @@ impl AsyncEntityTaskExt for TaskContext {
         }
     }
 
-    fn with_entity<R, F>(&self, entity: Entity, f: F) -> WithWorld<Result<R, EntityFetchError>>
+    fn with_entity<R, F>(
+        &self,
+        entity: Entity,
+        f: F,
+    ) -> WithWorld<Result<R, EntityMutableFetchError>>
     where
         R: Send + 'static,
         F: FnOnce(EntityWorldMut) -> R + Send + 'static,

@@ -7,6 +7,7 @@ fn main() {
         .insert_resource(AmbientLight {
             color: Color::WHITE,
             brightness: 1_000.0,
+            affects_lightmapped_meshes: true,
         })
         .add_systems(Startup, setup)
         .run();

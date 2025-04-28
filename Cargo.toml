@@ -9,11 +9,11 @@ repository = "https://github.com/jnhyatt/bevy_mod_async"
 keywords = ["gamedev", "tasks", "async", "bevy"]
 
 [dependencies]
-bevy_app = "0.15"
-bevy_asset = { version = "0.15", optional = true }
-bevy_ecs = "0.15"
-bevy_tasks = "0.15"
-bevy_time = { version = "0.15", optional = true }
+bevy_app = "0.16"
+bevy_asset = { version = "0.16", optional = true }
+bevy_ecs = "0.16"
+bevy_tasks = "0.16"
+bevy_time = { version = "0.16", optional = true }
 futures = "0.3"
 tokio = { version = "1.38.0", features = ["sync"] }
 tokio-stream = { version = "0.1.15", features = ["sync"] }
@@ -24,7 +24,7 @@ asset = ["bevy_asset"]
 time = ["bevy_time"]
 
 [dev-dependencies]
-bevy = "0.15"
+bevy = "0.16"
 
 [[example]]
 name = "hello_world"
