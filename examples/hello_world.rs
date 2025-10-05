@@ -43,13 +43,13 @@ fn setup(mut commands: Commands) {
             .await;
 
         // `event_stream` returns a `Stream` over any (clonable) event type
-        let mut events = cx.event_stream::<KeyboardInput>();
-        while let Some(ev) = events.next().await {
+        let mut messages = cx.message_stream::<KeyboardInput>();
+        while let Some(m) = messages.next().await {
             // `cx.with_entity` is a helper that wraps `with_world` and gives you an
             // `EntityWorldMut`to do whatever you want with:
             cx.with_entity(text_entity, move |mut text_entity| {
                 let mut text = text_entity.get_mut::<Text>().unwrap();
-                text.0 = format!("Got keyboard event: {:?}", ev.key_code);
+                text.0 = format!("Got keyboard message: {:?}", m.key_code);
             })
             .detach();
         }
