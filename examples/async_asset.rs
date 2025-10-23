@@ -1,3 +1,15 @@
+//! Note: this example is pretty thoroughly borked at this point. A few Bevy versions ago, the
+//! "Loading..." text would appear immediately, and the model would appear immediately as the text
+//! disappeared. Unfortunately, there are a couple issues with the current Bevy version:
+//!
+//! - Bevy does its first draw before the default font is loaded, so the text appears delayed
+//! - Bevy compiles graphics pipelines asynchronously, but it doesn't know which ones to compile
+//!   until the model is spawned, so there is a delay between despawning the loading text and the
+//!   model appearing
+//!
+//! We're still correctly demonstrating how to asynchronously load assets, so I'll leave the example
+//! for posterity, but be aware that the user experience isn't great at the moment.
+
 use bevy::prelude::*;
 use bevy_mod_async::prelude::*;
 

@@ -1,0 +1,5 @@
+bevy_mod_async TODO
+- remove 'static bound on with_world::F
+- insert/remove/get resource helpers
+- change detection support
+- observers?
