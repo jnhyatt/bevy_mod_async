@@ -19,7 +19,7 @@ use tokio::sync::{mpsc, oneshot};
 pub mod async_asset;
 pub mod async_entity;
 pub mod common_uses;
-pub mod event_stream;
+pub mod message_stream;
 #[cfg(feature = "time")]
 pub mod time;
 
@@ -28,7 +28,7 @@ pub mod prelude {
     pub use crate::time::TimingTaskExt;
     pub use crate::{
         async_entity::AsyncEntityTaskExt, common_uses::CommonUsesTaskExt,
-        event_stream::EventStreamTaskExt, AsyncTasksPlugin, SpawnCommandExt, SpawnTaskExt,
+        message_stream::MessageStreamTaskExt, AsyncTasksPlugin, SpawnCommandExt, SpawnTaskExt,
         TaskContext,
     };
 }
@@ -110,7 +110,7 @@ pub trait SpawnTaskExt {
     ///     // return the id
     ///     let _spawned = cx.with_world(|world| world.spawn(()).id()).await;
     /// });
-    /// # world.send_event(AppExit::Success);
+    /// # world.write_message(AppExit::Success);
     /// #     })
     /// #     .run();
     /// ```
@@ -149,7 +149,7 @@ pub trait SpawnCommandExt {
     ///     // return the id
     ///     let _spawned = cx.with_world(|world| world.spawn(()).id()).await;
     /// });
-    /// #         commands.send_event(AppExit::Success);
+    /// #         commands.write_message(AppExit::Success);
     /// #     })
     /// #     .run();
     /// ```

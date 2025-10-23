@@ -77,7 +77,7 @@ pub trait AsyncEntityTaskExt {
     /// cx.entity(entity).insert(Dead).await;
     /// cx.sleep(Duration::from_secs(1)).await;
     /// cx.entity(entity).despawn().await;
-    /// #         cx.send_event(AppExit::Success).await;
+    /// #         cx.write_message(AppExit::Success).await;
     /// #     });
     /// # }).run();
     /// ```
@@ -107,7 +107,7 @@ pub trait AsyncEntityTaskExt {
     ///     player.insert(Dead).remove::<Controls>();
     /// }).await;
     /// #         });
-    /// #         world.send_event(AppExit::Success);
+    /// #         world.write_message(AppExit::Success);
     /// #     })
     /// #     .run();
     /// ```

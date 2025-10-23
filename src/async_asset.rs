@@ -162,11 +162,9 @@ pub fn notify_asset_events(
     let mut to_unsubscribe = Vec::new();
     for (id, tx) in &subscriptions.handles {
         let current = assets.recursive_dependency_load_state(*id);
-        if !current.eq(&tx.borrow()) {
-            if tx.send(current).is_err() {
-                // Channel is closed, unsubscribe this asset
-                to_unsubscribe.push(*id);
-            }
+        if !current.eq(&tx.borrow()) && tx.send(current).is_err() {
+            // Channel is closed, unsubscribe this asset
+            to_unsubscribe.push(*id);
         }
     }
     for id in to_unsubscribe {
@@ -177,7 +175,7 @@ pub fn notify_asset_events(
 /// Manages interest in assets. Maintains a [`tokio::sync::watch::Sender`] for each asset
 /// handle a client has expressed interest in. [`AssetSubscriptions::subscribe_to`] is used
 /// to express interest in the load state for a given asset.
-#[derive(Resource)]
+#[derive(Default, Resource)]
 pub struct AssetSubscriptions {
     handles: HashMap<UntypedAssetId, watch::Sender<RecursiveDependencyLoadState>>,
 }
@@ -194,14 +192,6 @@ impl AssetSubscriptions {
         let (tx, rx) = watch::channel(init);
         self.handles.insert(id, tx);
         rx
-    }
-}
-
-impl Default for AssetSubscriptions {
-    fn default() -> Self {
-        Self {
-            handles: Default::default(),
-        }
     }
 }
 
