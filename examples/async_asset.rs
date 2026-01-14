@@ -16,7 +16,7 @@ use bevy_mod_async::prelude::*;
 fn main() {
     App::new()
         .add_plugins((DefaultPlugins, AsyncTasksPlugin))
-        .insert_resource(AmbientLight {
+        .insert_resource(GlobalAmbientLight {
             color: Color::WHITE,
             brightness: 1_000.0,
             affects_lightmapped_meshes: true,
